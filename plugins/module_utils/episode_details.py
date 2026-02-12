@@ -5,6 +5,7 @@
 
 
 from typing import Any, Optional
+from urllib.parse import quote_plus
 
 from ansible_collections.splunk.itsi.plugins.module_utils.itsi_request import ItsiRequest
 
@@ -25,7 +26,7 @@ def get_episode_by_id(
     Returns:
         Episode dictionary from the API response, or None if not found (404).
     """
-    path = f"{BASE_EPISODE_ENDPOINT}/{episode_id}"
+    path = f"{BASE_EPISODE_ENDPOINT}/{quote_plus(episode_id)}"
     result = client.get(path)
     if result is None:
         return None

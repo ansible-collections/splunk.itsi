@@ -19,7 +19,6 @@ from ansible_collections.splunk.itsi.plugins.module_utils.itsi_request import It
 # Import module functions for testing
 from ansible_collections.splunk.itsi.plugins.modules.itsi_episode_details_info import (
     _build_list_params,
-    _get_episode_by_id,
     _get_episode_count,
     _list_episodes,
     main,
@@ -60,19 +59,21 @@ SAMPLE_COUNT_RESPONSE = {"count": "42"}
 MODULE_PATH = "ansible_collections.splunk.itsi.plugins.modules.itsi_episode_details_info"
 
 
-# Module-utils: get_episode_by_id (from episode_details.py)
-class TestGetEpisodeByIdUtil:
+# get_episode_by_id (shared utility from episode_details.py)
+class TestGetEpisodeById:
     """Tests for the shared get_episode_by_id utility."""
 
-    def test_success(self):
+    def test_returns_episode_dict(self):
         """Test successful retrieval returns episode dict."""
         mock_conn = make_mock_conn(200, json.dumps(SAMPLE_EPISODE))
         data = get_episode_by_id(ItsiRequest(mock_conn, _mock_module()), "abc-123-def-456")
 
         assert data is not None
+        assert isinstance(data, dict)
+        assert data["_key"] == "abc-123-def-456"
         assert data["title"] == "Test Episode"
 
-    def test_not_found(self):
+    def test_not_found_returns_none(self):
         """Test 404 response returns None."""
         mock_conn = make_mock_conn(404, json.dumps({"error": "Not found"}))
         data = get_episode_by_id(ItsiRequest(mock_conn, _mock_module()), "nonexistent")
@@ -87,32 +88,10 @@ class TestGetEpisodeByIdUtil:
         call_path = mock_conn.send_request.call_args[0][0]
         assert f"{BASE_EPISODE_ENDPOINT}/abc-123" in call_path
 
-
-# _get_episode_by_id (module-level helper)
-class TestGetEpisodeById:
-    """Tests for _get_episode_by_id module helper."""
-
-    def test_returns_single_episode_wrapped_in_list(self):
-        """Test that a dict response is wrapped in a list."""
-        mock_conn = make_mock_conn(200, json.dumps(SAMPLE_EPISODE))
-        result = _get_episode_by_id(ItsiRequest(mock_conn, _mock_module()), "abc-123-def-456")
-
-        assert result["changed"] is False
-        assert len(result["episodes"]) == 1
-        assert result["episodes"][0]["_key"] == "abc-123-def-456"
-        assert "raw" not in result
-
-    def test_non_dict_body_returns_empty_list(self):
-        """Test that a non-dict body returns empty episodes list."""
-        mock_conn = make_mock_conn(200, json.dumps([SAMPLE_EPISODE]))
-        result = _get_episode_by_id(ItsiRequest(mock_conn, _mock_module()), "abc-123")
-
-        assert result["episodes"] == []
-
     def test_url_encodes_episode_id(self):
         """Test that special characters in the ID are URL-encoded."""
         mock_conn = make_mock_conn(200, json.dumps(SAMPLE_EPISODE))
-        _get_episode_by_id(ItsiRequest(mock_conn, _mock_module()), "id with spaces")
+        get_episode_by_id(ItsiRequest(mock_conn, _mock_module()), "id with spaces")
 
         call_path = mock_conn.send_request.call_args[0][0]
         assert "id+with+spaces" in call_path
@@ -120,7 +99,7 @@ class TestGetEpisodeById:
     def test_episode_id_with_slashes(self):
         """Test that slashes in the ID are URL-encoded."""
         mock_conn = make_mock_conn(200, json.dumps(SAMPLE_EPISODE))
-        _get_episode_by_id(ItsiRequest(mock_conn, _mock_module()), "id/with/slashes")
+        get_episode_by_id(ItsiRequest(mock_conn, _mock_module()), "id/with/slashes")
 
         call_path = mock_conn.send_request.call_args[0][0]
         assert "id%2Fwith%2Fslashes" in call_path
@@ -135,7 +114,6 @@ class TestGetEpisodeCount:
         mock_conn = make_mock_conn(200, json.dumps(SAMPLE_COUNT_RESPONSE))
         result = _get_episode_count(ItsiRequest(mock_conn, _mock_module()), None)
 
-        assert result["changed"] is False
         assert result["count"] == 42
 
     def test_with_filter_data(self):
@@ -207,7 +185,6 @@ class TestListEpisodes:
         mock_conn = make_mock_conn(200, json.dumps([SAMPLE_EPISODE, SAMPLE_EPISODE_2]))
         result = _list_episodes(ItsiRequest(mock_conn, _mock_module()), {})
 
-        assert result["changed"] is False
         assert len(result["episodes"]) == 2
 
     def test_empty_list(self):

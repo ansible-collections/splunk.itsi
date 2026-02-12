@@ -95,12 +95,12 @@ changed:
 """
 
 from typing import Any, Optional
-from urllib.parse import quote_plus
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.connection import Connection
 from ansible_collections.splunk.itsi.plugins.module_utils.episode_details import (
     BASE_EPISODE_ENDPOINT,
+    get_episode_by_id,
 )
 from ansible_collections.splunk.itsi.plugins.module_utils.itsi_request import ItsiRequest
 
@@ -127,26 +127,6 @@ def _fetch_body(
     return body
 
 
-def _get_episode_by_id(
-    client: ItsiRequest,
-    episode_id: str,
-) -> dict[str, Any]:
-    """Fetch a single episode by _key and return the result dict.
-
-    Args:
-        client: ItsiRequest instance for API requests.
-        episode_id: The episode _key to retrieve.
-
-    Returns:
-        Result dictionary with episodes and changed fields.
-    """
-    eid = quote_plus(episode_id)
-    body = _fetch_body(client, f"{BASE_EPISODE_ENDPOINT}/{eid}")
-    # ITSI EMI returns single episode object directly - wrap in list
-    episodes = [body] if isinstance(body, dict) else []
-    return {"changed": False, "episodes": episodes}
-
-
 def _get_episode_count(
     client: ItsiRequest,
     filter_data: Optional[str],
@@ -158,7 +138,7 @@ def _get_episode_count(
         filter_data: Optional MongoDB-style JSON filter string.
 
     Returns:
-        Result dictionary with count and changed fields.
+        Result dictionary with count.
     """
     params: dict[str, Any] = {}
     if filter_data:
@@ -170,7 +150,7 @@ def _get_episode_count(
             count = int(body["count"])
         except (TypeError, ValueError):
             count = 0
-    return {"changed": False, "count": count}
+    return {"count": count}
 
 
 def _list_episodes(
@@ -184,12 +164,15 @@ def _list_episodes(
         params: Query parameters for filtering, pagination, and sorting.
 
     Returns:
-        Result dictionary with episodes and changed fields.
+        Result dictionary with episodes list.
     """
     # List endpoint must end with '/'
     body = _fetch_body(client, f"{BASE_EPISODE_ENDPOINT}/", params=params)
     episodes = body if isinstance(body, list) else []
-    return {"changed": False, "episodes": episodes}
+    return {"episodes": episodes}
+
+
+PASSTHROUGH_PARAMS = ("skip", "fields", "filter_data", "sort_key", "sort_dir")
 
 
 def _build_list_params(module_params: dict[str, Any]) -> dict[str, Any]:
@@ -204,16 +187,9 @@ def _build_list_params(module_params: dict[str, Any]) -> dict[str, Any]:
     params: dict[str, Any] = {}
     if module_params["limit"] and module_params["limit"] > 0:
         params["limit"] = module_params["limit"]
-    if module_params["skip"] is not None:
-        params["skip"] = module_params["skip"]
-    if module_params["fields"]:
-        params["fields"] = module_params["fields"]
-    if module_params["filter_data"]:
-        params["filter_data"] = module_params["filter_data"]
-    if module_params["sort_key"]:
-        params["sort_key"] = module_params["sort_key"]
-    if module_params["sort_dir"] is not None:
-        params["sort_dir"] = module_params["sort_dir"]
+    for key in PASSTHROUGH_PARAMS:
+        if module_params[key] is not None:
+            params[key] = module_params[key]
     return params
 
 
@@ -240,18 +216,18 @@ def main() -> None:
 
         # Single-object GET by _key
         if module_params["episode_id"] and not module_params["count_only"]:
-            result = _get_episode_by_id(client, module_params["episode_id"])
-            module.exit_json(**result)
-
-        # Count endpoint
-        if module_params["count_only"]:
+            body = get_episode_by_id(client, module_params["episode_id"])
+            episodes = [body] if isinstance(body, dict) else []
+            result = {"episodes": episodes}
+        elif module_params["count_only"]:
+            # Count endpoint
             result = _get_episode_count(client, module_params["filter_data"])
-            module.exit_json(**result)
+        else:
+            # List endpoint
+            params = _build_list_params(module_params)
+            result = _list_episodes(client, params)
 
-        # List endpoint
-        params = _build_list_params(module_params)
-        result = _list_episodes(client, params)
-        module.exit_json(**result)
+        module.exit_json(changed=False, **result)
 
     except Exception as e:
         module.fail_json(msg=f"Exception occurred: {str(e)}")
