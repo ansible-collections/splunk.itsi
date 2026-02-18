@@ -128,7 +128,6 @@ from ansible_collections.splunk.itsi.plugins.module_utils.aggregation_policy_uti
     get_aggregation_policy_by_id,
     list_aggregation_policies,
 )
-
 from ansible_collections.splunk.itsi.plugins.module_utils.itsi_request import ItsiRequest
 from ansible_collections.splunk.itsi.plugins.module_utils.splunk_utils import exit_with_result
 

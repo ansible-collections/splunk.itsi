@@ -398,7 +398,12 @@ def _handle_state_present(module, client, params: dict):
         update_payload["is_scheduled"] = "1"
     _status, _hdr, body = update_correlation_search(client, search_identifier, update_payload)
     exit_with_result(
-        module, changed=True, before=existing_flat, after=after, diff=diff, response=body,
+        module,
+        changed=True,
+        before=existing_flat,
+        after=after,
+        diff=diff,
+        response=body,
     )
 
 
@@ -429,7 +434,11 @@ def _handle_absent_state(module, client, params: dict):
         _status, _hdr, body = del_result
         response = body
     exit_with_result(
-        module, changed=True, before=existing_flat, diff=existing_flat, response=response,
+        module,
+        changed=True,
+        before=existing_flat,
+        diff=existing_flat,
+        response=response,
     )
 
 

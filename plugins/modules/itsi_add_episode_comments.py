@@ -237,7 +237,11 @@ def main() -> None:
 
     if module.check_mode:
         exit_with_result(
-            module, changed=True, after=comment_data, diff=comment_data, extra=extra,
+            module,
+            changed=True,
+            after=comment_data,
+            diff=comment_data,
+            extra=extra,
         )
 
     try:

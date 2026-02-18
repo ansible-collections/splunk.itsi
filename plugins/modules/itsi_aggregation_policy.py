@@ -241,7 +241,6 @@ from ansible_collections.splunk.itsi.plugins.module_utils.aggregation_policy_uti
     flatten_policy_object,
     get_aggregation_policy_by_id,
 )
-
 from ansible_collections.splunk.itsi.plugins.module_utils.itsi_request import ItsiRequest
 from ansible_collections.splunk.itsi.plugins.module_utils.splunk_utils import exit_with_result
 
@@ -442,7 +441,12 @@ def _handle_state_present(module, client):
 
     _status, _hdr, body = update_aggregation_policy(client, policy_id, desired_canon, current_data)
     exit_with_result(
-        module, changed=True, before=current_data, after=after, diff=diff, response=body,
+        module,
+        changed=True,
+        before=current_data,
+        after=after,
+        diff=diff,
+        response=body,
     )
 
 
@@ -469,7 +473,11 @@ def _handle_state_absent(module, client):
         _status, _hdr, body = del_result
         response = body
     exit_with_result(
-        module, changed=True, before=current_data, diff=current_data, response=response,
+        module,
+        changed=True,
+        before=current_data,
+        diff=current_data,
+        response=response,
     )
 
 

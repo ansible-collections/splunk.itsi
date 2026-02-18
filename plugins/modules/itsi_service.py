@@ -769,7 +769,12 @@ def _handle_update(
 
     body = _update(client, current.get("_key", key), patch, current_doc=current)
     exit_with_result(
-        module, changed=True, before=current, after=after, diff=patch, response=body or {},
+        module,
+        changed=True,
+        before=current,
+        after=after,
+        diff=patch,
+        response=body or {},
     )
 
 
