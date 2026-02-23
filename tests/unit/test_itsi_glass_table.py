@@ -543,7 +543,9 @@ class TestUpdateDefinitionSync:
     @patch(f"{MODULE_PATH}.Connection")
     @patch(f"{MODULE_PATH}.AnsibleModule")
     def test_update_title_idempotent_with_matching_definition(
-        self, mock_mod_cls, mock_conn_cls
+        self,
+        mock_mod_cls,
+        mock_conn_cls,
     ):
         """No change when title already matches definition.title."""
         mock_mod, mock_conn = _make_main_module(
