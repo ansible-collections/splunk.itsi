@@ -68,43 +68,43 @@ releases:
     modules:
       - description: Add comments to Splunk ITSI episodes.
         name: itsi_add_episode_comments
-        namespace: ''
+        namespace: ""
       - description: Manage Splunk ITSI aggregation policies.
         name: itsi_aggregation_policy
-        namespace: ''
+        namespace: ""
       - description: Get information about Splunk ITSI aggregation policies.
         name: itsi_aggregation_policy_info
-        namespace: ''
+        namespace: ""
       - description: Manage Splunk ITSI correlation searches.
         name: itsi_correlation_search
-        namespace: ''
+        namespace: ""
       - description: Query Splunk ITSI correlation searches.
         name: itsi_correlation_search_info
-        namespace: ''
+        namespace: ""
       - description: Read Splunk ITSI notable_event_group (episodes).
         name: itsi_episode_details_info
-        namespace: ''
+        namespace: ""
       - description: Manage Splunk ITSI Glass Table objects via itoa_interface.
         name: itsi_glass_table
-        namespace: ''
+        namespace: ""
       - description: Read Splunk ITSI glass table objects via itoa_interface.
         name: itsi_glass_table_info
-        namespace: ''
+        namespace: ""
       - description: Manage Splunk ITSI Service objects via itoa_interface.
         name: itsi_service
-        namespace: ''
+        namespace: ""
       - description: Gather facts about Splunk ITSI Service objects via itoa_interface.
         name: itsi_service_info
-        namespace: ''
+        namespace: ""
       - description: Update specific fields of Splunk ITSI episodes.
         name: itsi_update_episode_details
-        namespace: ''
+        namespace: ""
     plugins:
       httpapi:
         - description: HttpApi Plugin for Splunk ITSI.
           name: itsi_api_client
           namespace: null
-    release_date: '2026-03-04'
+    release_date: "2026-03-04"
   1.0.1:
     changes:
       bugfixes:
@@ -116,7 +116,7 @@ releases:
     fragments:
       - release-summary.yml
       - v1.0.1-minor-fixes.yml
-    release_date: '2026-03-06'
+    release_date: "2026-03-06"
   2.0.0:
     changes:
       breaking_changes:
@@ -132,7 +132,8 @@ releases:
           of ``ansible.netcommon.httpapi``.
         - ansible-core 2.21 is now supported. Replaced ``ansible.module_utils.six.moves.urllib.parse``
           with the Python standard library ``urllib.parse`` in ``itsi_correlation_search``.
-      release_summary: This major release drops the ``ansible.netcommon`` dependency,
+      release_summary:
+        This major release drops the ``ansible.netcommon`` dependency,
         internalising the utilities the collection actually needs, and adds support
         for ansible-core 2.21. The ``itsi_glass_table`` module now raises an explicit
         error when the ``jsonschema`` package is missing.
@@ -141,4 +142,4 @@ releases:
       - remove-netcommon-add-2.21.yml
       - syntax-parentheses.yml
       - v2.0.0-release-summary.yml
-    release_date: '2026-04-16'
+    release_date: "2026-04-16"
