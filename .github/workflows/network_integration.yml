@@ -9,7 +9,6 @@ on:
   pull_request_target:
     branches: [main]
     types:
-      - labeled
       - opened
       - reopened
       - synchronize
@@ -21,35 +20,14 @@ on:
     - cron: "0 1 * * 0" # Weekly on Sunday at 01:00 UTC
 
 jobs:
-  check-actor:
-    name: Check Actor
-    if: github.actor != 'pre-commit-ci[bot]'
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "Actor ${{ github.actor }} is allowed to run integration tests"
-  safe-to-test:
-    needs:
-      - check-actor
-    if: >-
-      always() &&
-      needs.check-actor.result == 'success' &&
-      github.event_name == 'pull_request_target' &&
-      (github.event.label.name == 'safe to test' ||
-      github.event.action != 'labeled')
-    uses: ansible-network/github_actions/.github/workflows/safe-to-test.yml@main
-
   approve:
     name: Approve Integration
     runs-on: ubuntu-latest
+    # Environment gate requires a maintainer to approve before secrets and
+    # self-hosted runner resources are made available to PR code.
     environment:
       name: ${{ github.event_name == 'schedule' && 'eco-itsi-daily' || 'eco-itsi-protected' }}
-    needs:
-      - check-actor
-      - safe-to-test
-    if: >-
-      always() &&
-      needs.check-actor.result == 'success' &&
-      (needs.safe-to-test.result == 'success' || needs.safe-to-test.result == 'skipped')
+    if: github.actor != 'pre-commit-ci[bot]'
     steps:
       - run: echo "Deployment approved"
 
@@ -76,8 +54,6 @@ jobs:
         with:
           path: ansible_collections/splunk/itsi
           ref: ${{ github.event_name == 'pull_request_target' && github.event.pull_request.head.sha || github.sha }}
-          # Safe: the 'approve' job above requires a maintainer to approve via the
-          # eco-itsi-protected environment gate before this job runs.
           allow-unsafe-pr-checkout: true
 
       - name: Install ansible-core (${{ matrix.ansible_version }})
