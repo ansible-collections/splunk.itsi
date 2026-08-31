@@ -3,7 +3,6 @@
 # Copyright (c) 2026 Splunk ITSI Ansible Collection maintainers
 """Unit tests for itsi_glass_table_info module."""
 
-
 import json
 from unittest.mock import (
     MagicMock,
