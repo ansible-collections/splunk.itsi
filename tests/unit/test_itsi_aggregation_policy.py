@@ -3,7 +3,6 @@
 # Copyright (c) 2025 Splunk ITSI Ansible Collection maintainers
 """Unit tests for itsi_aggregation_policy module."""
 
-
 import json
 from unittest.mock import (
     MagicMock,
