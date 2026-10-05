@@ -3,7 +3,6 @@
 # Copyright (c) 2026 Splunk ITSI Ansible Collection maintainers
 """Unit tests for itsi_correlation_search module."""
 
-
 import json
 from unittest.mock import (
     MagicMock,
