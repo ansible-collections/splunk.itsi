@@ -18,7 +18,6 @@
 #
 """Unit tests for itsi_add_episode_comments module."""
 
-
 import json
 from unittest.mock import (
     MagicMock,

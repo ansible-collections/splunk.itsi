@@ -3,7 +3,6 @@
 # Copyright (c) 2026 Splunk ITSI Ansible Collection maintainers
 """Unit tests for itsi_api_client httpapi plugin."""
 
-
 import base64
 import io
 from unittest.mock import (
